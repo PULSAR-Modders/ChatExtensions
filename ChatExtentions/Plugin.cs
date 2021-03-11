@@ -1,9 +1,4 @@
 ﻿using PulsarPluginLoader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatExtentions
 {
@@ -16,8 +11,6 @@ namespace ChatExtentions
         public override string ShortDescription => base.ShortDescription; //TODO
 
         public override string Name => "Chat Extentions";
-
-        public override int MPFunctionality => base.MPFunctionality; //TODO
 
         public override string HarmonyIdentifier()
         {
