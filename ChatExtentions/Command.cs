@@ -56,7 +56,7 @@ namespace ChatExtensions
 
             if (player != null)
             {
-                Messaging.Echo(PLNetworkManager.Instance.LocalPlayer.GetPhotonPlayer(), $"[&%~[C5  You whisper to {player.GetPlayerName()}: {message} ]&%~]");
+                Messaging.Echo(PLNetworkManager.Instance.LocalPlayer.GetPhotonPlayer(), $"<color=#a0a0a0>You whisper to</color> [&%~[C{player.GetClassID()} {player.GetPlayerName()} ]&%~]<color=#a0a0a0>: {message}</color>");
                 PrivateMessage.SendMessage(player.GetPhotonPlayer(), message);
             }
             else

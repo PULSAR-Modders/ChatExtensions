@@ -15,9 +15,10 @@ namespace ChatExtensions
 
         public override void HandleRPC(object[] arguments, PhotonMessageInfo sender)
         {
-            string name = PLServer.GetPlayerForPhotonPlayer(sender.sender).GetPlayerName();
+            PLPlayer player = PLServer.GetPlayerForPhotonPlayer(sender.sender);
+            string name = player.GetPlayerName();
             string message = (string)arguments[0];
-            Messaging.Echo(PLNetworkManager.Instance.LocalPlayer.GetPhotonPlayer(), $"[&%~[C5  {name} whispers to you: {message} ]&%~]");
+            Messaging.Echo(PLNetworkManager.Instance.LocalPlayer.GetPhotonPlayer(), $"[&%~[C{player.GetClassID()} {name} ]&%~] <color=#a0a0a0>whispers to you: {message}</color>");
         }
     }
 }
