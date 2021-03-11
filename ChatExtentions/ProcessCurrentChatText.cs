@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
 
-namespace ChatExtentions
+namespace ChatExtensions
 {
     [HarmonyPatch(typeof(PLNetworkManager), "ProcessCurrentChatText")]
     class ProcessCurrentChatText

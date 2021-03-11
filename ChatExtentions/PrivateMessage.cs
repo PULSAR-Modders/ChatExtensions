@@ -1,12 +1,12 @@
 ﻿using PulsarPluginLoader;
 using PulsarPluginLoader.Utilities;
 
-namespace ChatExtentions
+namespace ChatExtensions
 {
     class PrivateMessage : ModMessage
     {
         private static readonly string harmonyIdentifier = Plugin.harmonyIdentifier;
-        private static readonly string handlerIdentifier = "ChatExtentions.PrivateMessage";
+        private static readonly string handlerIdentifier = "ChatExtensions.PrivateMessage";
 
         public static void SendMessage(PhotonPlayer player, string message)
         {

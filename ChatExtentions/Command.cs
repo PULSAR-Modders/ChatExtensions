@@ -1,7 +1,7 @@
 ﻿using PulsarPluginLoader.Chat.Commands;
 using PulsarPluginLoader.Utilities;
 
-namespace ChatExtentions
+namespace ChatExtensions
 {
     class Command : IChatCommand
     {

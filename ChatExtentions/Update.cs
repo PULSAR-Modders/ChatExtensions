@@ -3,7 +3,7 @@ using PulsarPluginLoader.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChatExtentions
+namespace ChatExtensions
 {
     [HarmonyPatch(typeof(PLNetworkManager), "Update")]
     class Update
