@@ -13,6 +13,8 @@ namespace ChatExtensions
 
         private static string currentChatText;
 
+        private static bool textModified = false;
+
         private static void SetChat(PLNetworkManager instance)
         {
             if (curentHistory == null)
@@ -25,16 +27,43 @@ namespace ChatExtensions
             }
         }
 
+        private static void DeleteSelected()
+        {
+            int pos;
+            int length;
+            if (HandleChat.cursorPos < HandleChat.cursorPos2)
+            {
+                pos = currentChatText.Length - HandleChat.cursorPos2;
+                length = HandleChat.cursorPos2 - HandleChat.cursorPos;
+            }
+            else
+            {
+                pos = currentChatText.Length - HandleChat.cursorPos;
+                length = HandleChat.cursorPos - HandleChat.cursorPos2;
+                HandleChat.cursorPos = HandleChat.cursorPos2;
+            }
+            HandleChat.cursorPos2 = -1;
+            currentChatText = currentChatText.Remove(pos, length);
+        }
+
         static void Prefix(PLNetworkManager __instance)
         {
-            if (__instance.IsTyping && HandleChat.cursorPos > 0)
+            currentChatText = __instance.CurrentChatText;
+            if (__instance.IsTyping && (HandleChat.cursorPos > 0 || HandleChat.cursorPos2 > 0))
             {
-                currentChatText = __instance.CurrentChatText;
                 foreach (char c in Input.inputString)
                 {
                     if (c == "\b"[0])
                     {
-                        currentChatText = currentChatText.Remove(currentChatText.Length - HandleChat.cursorPos - 1, 1);
+                        if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                        {
+                            DeleteSelected();
+                        }
+                        else
+                        {
+                            currentChatText = currentChatText.Remove(currentChatText.Length - HandleChat.cursorPos - 1, 1);
+                        }
+                        textModified = true;
                     }
                     else if (c == Environment.NewLine[0] || c == "\r"[0])
                     {
@@ -42,8 +71,26 @@ namespace ChatExtensions
                     }
                     else
                     {
+                        if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                        {
+                            DeleteSelected();
+                        }
                         currentChatText = currentChatText.Insert(currentChatText.Length - HandleChat.cursorPos, c.ToString());
+                        textModified = true;
                     }
+                }
+                if (Input.GetKeyDown(KeyCode.Delete))
+                {
+                    if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                    {
+                        DeleteSelected();
+                    }
+                    else
+                    {
+                        currentChatText = currentChatText.Remove(currentChatText.Length - HandleChat.cursorPos, 1);
+                        HandleChat.cursorPos--;
+                    }
+                    textModified = true;
                 }
             }
         }
@@ -56,15 +103,39 @@ namespace ChatExtensions
                 return;
             }
 
-            if (HandleChat.cursorPos > 0)
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             {
-                __instance.CurrentChatText = currentChatText;
+                if (Input.GetKeyDown(KeyCode.V))
+                {
+                    if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                    {
+                        DeleteSelected();
+                    }
+                    currentChatText = currentChatText.Insert(currentChatText.Length - HandleChat.cursorPos, Clipboard.Paste());
+                    textModified = true;
+                }
+                if (Input.GetKeyDown(KeyCode.C) && HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                {
+                    int pos;
+                    int length;
+                    if (HandleChat.cursorPos < HandleChat.cursorPos2)
+                    {
+                        pos = currentChatText.Length - HandleChat.cursorPos2;
+                        length = HandleChat.cursorPos2 - HandleChat.cursorPos;
+                    }
+                    else
+                    {
+                        pos = currentChatText.Length - HandleChat.cursorPos;
+                        length = HandleChat.cursorPos - HandleChat.cursorPos2;
+                    }
+                    Clipboard.Copy(currentChatText.Substring(pos, length));
+                }
             }
 
-            if (Input.GetKey(KeyCode.LeftControl) &&
-                Input.GetKeyDown(KeyCode.V))
+            if (textModified)
             {
-                __instance.CurrentChatText += Clipboard.Paste();
+                textModified = false;
+                __instance.CurrentChatText = currentChatText;
             }
 
             if (Input.GetKeyDown(KeyCode.UpArrow))
