@@ -130,6 +130,29 @@ namespace ChatExtensions
                     }
                     Clipboard.Copy(currentChatText.Substring(pos, length));
                 }
+                if (Input.GetKeyDown(KeyCode.X) && HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                {
+                    int pos;
+                    int length;
+                    if (HandleChat.cursorPos < HandleChat.cursorPos2)
+                    {
+                        pos = currentChatText.Length - HandleChat.cursorPos2;
+                        length = HandleChat.cursorPos2 - HandleChat.cursorPos;
+                    }
+                    else
+                    {
+                        pos = currentChatText.Length - HandleChat.cursorPos;
+                        length = HandleChat.cursorPos - HandleChat.cursorPos2;
+                    }
+                    Clipboard.Copy(currentChatText.Substring(pos, length));
+                    DeleteSelected();
+                    textModified = true;
+                }
+                if (Input.GetKeyDown(KeyCode.A))
+                {
+                    HandleChat.cursorPos = 0;
+                    HandleChat.cursorPos2 = currentChatText.Length;
+                }
             }
 
             if (textModified)
