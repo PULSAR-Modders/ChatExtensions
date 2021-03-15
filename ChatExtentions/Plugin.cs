@@ -5,7 +5,7 @@ namespace ChatExtensions
     public class Plugin : PulsarPlugin
     {
         public static readonly string harmonyIdentifier = "mod.id107.chatextensions";
-        public override string Version => "0.0.3";
+        public override string Version => "0.0.4";
 
         public override string Author => "18107";
 

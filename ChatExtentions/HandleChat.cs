@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using PulsarPluginLoader.Utilities;
 using System;
 using UnityEngine;
 
@@ -10,6 +9,9 @@ namespace ChatExtensions
     {
         public static int cursorPos = 0;
         public static int cursorPos2 = -1;
+
+        private static long lastTimeLeft = long.MaxValue;
+        private static long lastTimeRight = long.MaxValue;
 
         private static bool TagFound(string str, PLNetworkManager networkManager, int pos)
         {
@@ -65,6 +67,7 @@ namespace ChatExtensions
                     }
                     if (Input.GetKeyDown(KeyCode.LeftArrow))
                     {
+                        lastTimeLeft = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond + /*(SystemInformation.KeyboardDelay + 1) **/ 250;
                         if (cursorPos < __state.Length)
                         {
                             cursorPos++;
@@ -72,6 +75,31 @@ namespace ChatExtensions
                     }
                     if (Input.GetKeyDown(KeyCode.RightArrow))
                     {
+                        lastTimeRight = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond + /*(SystemInformation.KeyboardDelay + 1) **/ 250;
+                        if (cursorPos > 0)
+                        {
+                            cursorPos--;
+                        }
+                    }
+                    if (Input.GetKeyDown(KeyCode.Home))
+                    {
+                        cursorPos = __state.Length;
+                    }
+                    if (Input.GetKeyDown(KeyCode.End))
+                    {
+                        cursorPos = 0;
+                    }
+                    if (Input.GetKey(KeyCode.LeftArrow) && DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond > lastTimeLeft)
+                    {
+                        lastTimeLeft += 30 /*(long)(1 / ((SystemInformation.KeyboardSpeed + 1) * 0.859375))*/;
+                        if (cursorPos < __state.Length)
+                        {
+                            cursorPos++;
+                        }
+                    }
+                    if (Input.GetKey(KeyCode.RightArrow) && DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond > lastTimeRight)
+                    {
+                        lastTimeRight += 30 /*(long)(1 / ((SystemInformation.KeyboardSpeed + 1) * 0.859375))*/;
                         if (cursorPos > 0)
                         {
                             cursorPos--;
@@ -83,6 +111,7 @@ namespace ChatExtensions
                     if (Input.GetKeyDown(KeyCode.LeftArrow))
                     {
                         cursorPos2 = -1;
+                        lastTimeLeft = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond + 500 /*(SystemInformation.KeyboardDelay + 1) * 250*/;
                         if (cursorPos < __state.Length)
                         {
                             cursorPos++;
@@ -91,6 +120,35 @@ namespace ChatExtensions
                     if (Input.GetKeyDown(KeyCode.RightArrow))
                     {
                         cursorPos2 = -1;
+                        lastTimeRight = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond + 500 /*(SystemInformation.KeyboardDelay + 1) * 250*/;
+                        if (cursorPos > 0)
+                        {
+                            cursorPos--;
+                        }
+                    }
+                    if (Input.GetKeyDown(KeyCode.Home))
+                    {
+                        cursorPos2 = -1;
+                        cursorPos = __state.Length;
+                    }
+                    if (Input.GetKeyDown(KeyCode.End))
+                    {
+                        cursorPos2 = -1;
+                        cursorPos = 0;
+                    }
+                    if (Input.GetKey(KeyCode.LeftArrow) && DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond > lastTimeLeft)
+                    {
+                        cursorPos2 = -1;
+                        lastTimeLeft += 30 /*(long)(1 / ((SystemInformation.KeyboardSpeed + 1) * 0.859375))*/;
+                        if (cursorPos < __state.Length)
+                        {
+                            cursorPos++;
+                        }
+                    }
+                    if (Input.GetKey(KeyCode.RightArrow) && DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond > lastTimeRight)
+                    {
+                        cursorPos2 = -1;
+                        lastTimeRight += 30 /*(long)(1 / ((SystemInformation.KeyboardSpeed + 1) * 0.859375))*/;
                         if (cursorPos > 0)
                         {
                             cursorPos--;

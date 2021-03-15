@@ -164,6 +164,7 @@ namespace ChatExtensions
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 HandleChat.cursorPos = 0;
+                HandleChat.cursorPos2 = -1;
                 if (curentHistory == null)
                 {
                     curentHistory = Global.chatHistory.Last;
@@ -177,6 +178,7 @@ namespace ChatExtensions
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 HandleChat.cursorPos = 0;
+                HandleChat.cursorPos2 = -1;
                 if (curentHistory == null)
                 {
                     curentHistory = Global.chatHistory.First;
