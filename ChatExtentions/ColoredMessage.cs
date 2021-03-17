@@ -11,7 +11,7 @@ namespace ChatExtensions
             {
                 while (true)
                 {
-                    int index = inMsg.IndexOf("<color=#");
+                    int index = inMsg.IndexOf("<color=");
                     if (index < 0)
                         break;
                     int endIndex = index;
