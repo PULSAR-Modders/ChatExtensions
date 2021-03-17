@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using PulsarPluginLoader.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -111,7 +110,7 @@ namespace ChatExtensions
                     {
                         DeleteSelected();
                     }
-                    currentChatText = currentChatText.Insert(currentChatText.Length - HandleChat.cursorPos, Clipboard.Paste());
+                    currentChatText = currentChatText.Insert(currentChatText.Length - HandleChat.cursorPos, GUIUtility.systemCopyBuffer);
                     textModified = true;
                 }
                 if (Input.GetKeyDown(KeyCode.C) && HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
@@ -128,7 +127,7 @@ namespace ChatExtensions
                         pos = currentChatText.Length - HandleChat.cursorPos;
                         length = HandleChat.cursorPos - HandleChat.cursorPos2;
                     }
-                    Clipboard.Copy(currentChatText.Substring(pos, length));
+                    GUIUtility.systemCopyBuffer = currentChatText.Substring(pos, length);
                 }
                 if (Input.GetKeyDown(KeyCode.X) && HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
                 {
@@ -144,7 +143,7 @@ namespace ChatExtensions
                         pos = currentChatText.Length - HandleChat.cursorPos;
                         length = HandleChat.cursorPos - HandleChat.cursorPos2;
                     }
-                    Clipboard.Copy(currentChatText.Substring(pos, length));
+                    GUIUtility.systemCopyBuffer = currentChatText.Substring(pos, length);
                     DeleteSelected();
                     textModified = true;
                 }

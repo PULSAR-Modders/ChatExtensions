@@ -15,7 +15,7 @@ namespace ChatExtensions
 
         private static bool TagFound(string str, PLNetworkManager networkManager, int pos)
         {
-            if (pos >= 0)
+            if (pos <= 0)
             {
                 return false;
             }
@@ -180,6 +180,7 @@ namespace ChatExtensions
             else
             {
                 cursorPos = 0;
+                cursorPos2 = -1;
                 __instance.ChatLabel.supportRichText = true;
                 __instance.ChatShadowLabel.supportRichText = true;
                 __instance.ChatShadow2Label.supportRichText = true;

@@ -55,6 +55,10 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>F:\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>F:\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
