@@ -8,6 +8,8 @@ namespace ChatExtensions
     [HarmonyPatch(typeof(PLNetworkManager), "Update")]
     class Update
     {
+        public static LinkedList<string> chatHistory = new LinkedList<string>();
+
         private static LinkedListNode<string> curentHistory = null;
 
         private static string currentChatText;
@@ -166,7 +168,7 @@ namespace ChatExtensions
                 HandleChat.cursorPos2 = -1;
                 if (curentHistory == null)
                 {
-                    curentHistory = Global.chatHistory.Last;
+                    curentHistory = chatHistory.Last;
                 }
                 else
                 {
@@ -180,7 +182,7 @@ namespace ChatExtensions
                 HandleChat.cursorPos2 = -1;
                 if (curentHistory == null)
                 {
-                    curentHistory = Global.chatHistory.First;
+                    curentHistory = chatHistory.First;
                 }
                 else
                 {

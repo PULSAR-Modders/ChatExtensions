@@ -74,7 +74,6 @@
   <ItemGroup>
     <Compile Include="ColoredMessage.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="Global.cs" />
     <Compile Include="HandleChat.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PrivateMessage.cs" />

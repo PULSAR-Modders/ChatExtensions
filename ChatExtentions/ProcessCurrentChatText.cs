@@ -6,6 +6,7 @@ namespace ChatExtensions
     [HarmonyPatch(typeof(PLNetworkManager), "ProcessCurrentChatText")]
     class ProcessCurrentChatText
     {
+        private static readonly char[] newline = { '\n', '\r'};
         static void Prefix(PLNetworkManager __instance)
         {
             if (string.IsNullOrWhiteSpace(__instance.CurrentChatText))
@@ -13,15 +14,15 @@ namespace ChatExtensions
                 return;
             }
 
-            LinkedListNode<string> lastMessage = Global.chatHistory.FindLast(__instance.CurrentChatText);
+            LinkedListNode<string> lastMessage = Update.chatHistory.FindLast(__instance.CurrentChatText.TrimEnd(newline));
             if (lastMessage != null)
             {
-                Global.chatHistory.Remove(lastMessage);
+                Update.chatHistory.Remove(lastMessage);
             }
-            Global.chatHistory.AddLast(__instance.CurrentChatText);
-            if (Global.chatHistory.Count > 100)
+            Update.chatHistory.AddLast(__instance.CurrentChatText.TrimEnd(newline));
+            if (Update.chatHistory.Count > 100)
             {
-                Global.chatHistory.RemoveFirst();
+                Update.chatHistory.RemoveFirst();
             }
         }
     }
