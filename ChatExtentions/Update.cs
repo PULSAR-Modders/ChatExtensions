@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using PulsarPluginLoader.Chat.Commands;
+using PulsarPluginLoader.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +17,9 @@ namespace ChatExtensions
         private static string currentChatText;
 
         private static bool textModified = false;
+
+        private static bool commandsCached = false;
+        private static string[] aliases = null;
 
         private static void SetChat(PLNetworkManager instance)
         {
@@ -45,6 +50,55 @@ namespace ChatExtensions
             }
             HandleChat.cursorPos2 = -1;
             currentChatText = currentChatText.Remove(pos, length);
+        }
+
+        private static string[] GetCommands()
+        {
+            if (!commandsCached)
+            {
+                IEnumerable<IChatCommand> commands = ChatCommandRouter.Instance.GetCommands();
+                List<string> listAliases = new List<string>();
+                foreach (IChatCommand command in commands)
+                {
+                    if (!command.PublicCommand())
+                    {
+                        foreach (string alias in command.CommandAliases())
+                        {
+                            listAliases.Add(alias);
+                        }
+                    }
+                }
+                aliases = listAliases.ToArray();
+                commandsCached = true;
+            }
+            return aliases;
+        }
+
+        public static string AutoComplete(string text, string[] aliases)
+        {
+            string chat = text.Substring(1);
+            List<string> matchingCommands = new List<string>();
+            int matchCount = 0;
+            foreach (string alias in aliases)
+            {
+                if (alias.ToLower().StartsWith(chat.ToLower()))
+                {
+                    matchCount++;
+                    matchingCommands.Add(alias);
+                }
+            }
+            if (matchCount == 1)
+            {
+                text = text[0] + matchingCommands[0];
+            }
+            else if (matchCount > 1)
+            {
+                foreach (string alias in matchingCommands)
+                {
+                    Messaging.Notification(text[0] + alias);
+                }
+            }
+            return text;
         }
 
         static void Prefix(PLNetworkManager __instance)
@@ -92,6 +146,21 @@ namespace ChatExtensions
                         HandleChat.cursorPos--;
                     }
                     textModified = true;
+                }
+            }
+            else if (__instance.IsTyping)
+            {
+                if (Input.GetKeyDown(KeyCode.Tab))
+                {
+                    if (currentChatText.StartsWith("/"))
+                    {
+                        currentChatText = AutoComplete(currentChatText, GetCommands());
+                        textModified = true;
+                    }
+                    else if (currentChatText.StartsWith("!"))
+                    {
+                        HandlePublicCommands.RequestPublicCommands();
+                    }
                 }
             }
         }

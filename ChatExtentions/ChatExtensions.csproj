@@ -75,6 +75,7 @@
     <Compile Include="ColoredMessage.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="HandleChat.cs" />
+    <Compile Include="HandlePublicCommands.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PrivateMessage.cs" />
     <Compile Include="ProcessCurrentChatText.cs" />
