@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ChatExtensions
 {
     [HarmonyPatch(typeof(PLInGameUI), "HandleChat")]
-    class HandleChat
+    class HarmonyHandleChat
     {
         public static int cursorPos = 0;
         public static int cursorPos2 = -1;

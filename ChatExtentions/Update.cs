@@ -21,6 +21,9 @@ namespace ChatExtensions
         private static bool commandsCached = false;
         private static string[] aliases = null;
 
+        public static bool publicCached = false;
+        public static string[] publicCommands = null;
+
         private static void SetChat(PLNetworkManager instance)
         {
             if (curentHistory == null)
@@ -37,18 +40,18 @@ namespace ChatExtensions
         {
             int pos;
             int length;
-            if (HandleChat.cursorPos < HandleChat.cursorPos2)
+            if (HarmonyHandleChat.cursorPos < HarmonyHandleChat.cursorPos2)
             {
-                pos = currentChatText.Length - HandleChat.cursorPos2;
-                length = HandleChat.cursorPos2 - HandleChat.cursorPos;
+                pos = currentChatText.Length - HarmonyHandleChat.cursorPos2;
+                length = HarmonyHandleChat.cursorPos2 - HarmonyHandleChat.cursorPos;
             }
             else
             {
-                pos = currentChatText.Length - HandleChat.cursorPos;
-                length = HandleChat.cursorPos - HandleChat.cursorPos2;
-                HandleChat.cursorPos = HandleChat.cursorPos2;
+                pos = currentChatText.Length - HarmonyHandleChat.cursorPos;
+                length = HarmonyHandleChat.cursorPos - HarmonyHandleChat.cursorPos2;
+                HarmonyHandleChat.cursorPos = HarmonyHandleChat.cursorPos2;
             }
-            HandleChat.cursorPos2 = -1;
+            HarmonyHandleChat.cursorPos2 = -1;
             currentChatText = currentChatText.Remove(pos, length);
         }
 
@@ -56,19 +59,7 @@ namespace ChatExtensions
         {
             if (!commandsCached)
             {
-                IEnumerable<IChatCommand> commands = ChatCommandRouter.Instance.GetCommands();
-                List<string> listAliases = new List<string>();
-                foreach (IChatCommand command in commands)
-                {
-                    if (!command.PublicCommand())
-                    {
-                        foreach (string alias in command.CommandAliases())
-                        {
-                            listAliases.Add(alias);
-                        }
-                    }
-                }
-                aliases = listAliases.ToArray();
+                aliases = ChatCommandRouter.Instance.getCommandAliases();
                 commandsCached = true;
             }
             return aliases;
@@ -93,10 +84,25 @@ namespace ChatExtensions
             }
             else if (matchCount > 1)
             {
+                string match = matchingCommands[0];
                 foreach (string alias in matchingCommands)
                 {
                     Messaging.Notification(text[0] + alias);
+                    for (int i = chat.Length; i < match.Length; i++)
+                    {
+                        if (i >= alias.Length)
+                        {
+                            match = alias;
+                            break;
+                        }
+                        if (match[i] != alias[i])
+                        {
+                            match = alias.Substring(0, i);
+                            break;
+                        }
+                    }
                 }
+                text = text[0] + match;
             }
             return text;
         }
@@ -104,19 +110,22 @@ namespace ChatExtensions
         static void Prefix(PLNetworkManager __instance)
         {
             currentChatText = __instance.CurrentChatText;
-            if (__instance.IsTyping && (HandleChat.cursorPos > 0 || HandleChat.cursorPos2 > 0))
+            if (__instance.IsTyping && (HarmonyHandleChat.cursorPos > 0 || HarmonyHandleChat.cursorPos2 > 0))
             {
                 foreach (char c in Input.inputString)
                 {
                     if (c == "\b"[0])
                     {
-                        if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                        if (HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                         {
                             DeleteSelected();
                         }
                         else
                         {
-                            currentChatText = currentChatText.Remove(currentChatText.Length - HandleChat.cursorPos - 1, 1);
+                            if (HarmonyHandleChat.cursorPos != currentChatText.Length)
+                            {
+                                currentChatText = currentChatText.Remove(currentChatText.Length - HarmonyHandleChat.cursorPos - 1, 1);
+                            }
                         }
                         textModified = true;
                     }
@@ -126,24 +135,24 @@ namespace ChatExtensions
                     }
                     else
                     {
-                        if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                        if (HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                         {
                             DeleteSelected();
                         }
-                        currentChatText = currentChatText.Insert(currentChatText.Length - HandleChat.cursorPos, c.ToString());
+                        currentChatText = currentChatText.Insert(currentChatText.Length - HarmonyHandleChat.cursorPos, c.ToString());
                         textModified = true;
                     }
                 }
                 if (Input.GetKeyDown(KeyCode.Delete))
                 {
-                    if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                    if (HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                     {
                         DeleteSelected();
                     }
                     else
                     {
-                        currentChatText = currentChatText.Remove(currentChatText.Length - HandleChat.cursorPos, 1);
-                        HandleChat.cursorPos--;
+                        currentChatText = currentChatText.Remove(currentChatText.Length - HarmonyHandleChat.cursorPos, 1);
+                        HarmonyHandleChat.cursorPos--;
                     }
                     textModified = true;
                 }
@@ -159,7 +168,15 @@ namespace ChatExtensions
                     }
                     else if (currentChatText.StartsWith("!"))
                     {
-                        HandlePublicCommands.RequestPublicCommands();
+                        if (publicCached)
+                        {
+                            currentChatText = AutoComplete(currentChatText, publicCommands);
+                            textModified = true;
+                        }
+                        else
+                        {
+                            HandlePublicCommands.RequestPublicCommands();
+                        }
                     }
                 }
             }
@@ -177,42 +194,42 @@ namespace ChatExtensions
             {
                 if (Input.GetKeyDown(KeyCode.V))
                 {
-                    if (HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                    if (HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                     {
                         DeleteSelected();
                     }
-                    currentChatText = currentChatText.Insert(currentChatText.Length - HandleChat.cursorPos, GUIUtility.systemCopyBuffer);
+                    currentChatText = currentChatText.Insert(currentChatText.Length - HarmonyHandleChat.cursorPos, GUIUtility.systemCopyBuffer);
                     textModified = true;
                 }
-                if (Input.GetKeyDown(KeyCode.C) && HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                if (Input.GetKeyDown(KeyCode.C) && HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                 {
                     int pos;
                     int length;
-                    if (HandleChat.cursorPos < HandleChat.cursorPos2)
+                    if (HarmonyHandleChat.cursorPos < HarmonyHandleChat.cursorPos2)
                     {
-                        pos = currentChatText.Length - HandleChat.cursorPos2;
-                        length = HandleChat.cursorPos2 - HandleChat.cursorPos;
+                        pos = currentChatText.Length - HarmonyHandleChat.cursorPos2;
+                        length = HarmonyHandleChat.cursorPos2 - HarmonyHandleChat.cursorPos;
                     }
                     else
                     {
-                        pos = currentChatText.Length - HandleChat.cursorPos;
-                        length = HandleChat.cursorPos - HandleChat.cursorPos2;
+                        pos = currentChatText.Length - HarmonyHandleChat.cursorPos;
+                        length = HarmonyHandleChat.cursorPos - HarmonyHandleChat.cursorPos2;
                     }
                     GUIUtility.systemCopyBuffer = currentChatText.Substring(pos, length);
                 }
-                if (Input.GetKeyDown(KeyCode.X) && HandleChat.cursorPos2 != -1 && HandleChat.cursorPos2 != HandleChat.cursorPos)
+                if (Input.GetKeyDown(KeyCode.X) && HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                 {
                     int pos;
                     int length;
-                    if (HandleChat.cursorPos < HandleChat.cursorPos2)
+                    if (HarmonyHandleChat.cursorPos < HarmonyHandleChat.cursorPos2)
                     {
-                        pos = currentChatText.Length - HandleChat.cursorPos2;
-                        length = HandleChat.cursorPos2 - HandleChat.cursorPos;
+                        pos = currentChatText.Length - HarmonyHandleChat.cursorPos2;
+                        length = HarmonyHandleChat.cursorPos2 - HarmonyHandleChat.cursorPos;
                     }
                     else
                     {
-                        pos = currentChatText.Length - HandleChat.cursorPos;
-                        length = HandleChat.cursorPos - HandleChat.cursorPos2;
+                        pos = currentChatText.Length - HarmonyHandleChat.cursorPos;
+                        length = HarmonyHandleChat.cursorPos - HarmonyHandleChat.cursorPos2;
                     }
                     GUIUtility.systemCopyBuffer = currentChatText.Substring(pos, length);
                     DeleteSelected();
@@ -220,8 +237,8 @@ namespace ChatExtensions
                 }
                 if (Input.GetKeyDown(KeyCode.A))
                 {
-                    HandleChat.cursorPos = 0;
-                    HandleChat.cursorPos2 = currentChatText.Length;
+                    HarmonyHandleChat.cursorPos = 0;
+                    HarmonyHandleChat.cursorPos2 = currentChatText.Length;
                 }
             }
 
@@ -233,8 +250,8 @@ namespace ChatExtensions
 
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
-                HandleChat.cursorPos = 0;
-                HandleChat.cursorPos2 = -1;
+                HarmonyHandleChat.cursorPos = 0;
+                HarmonyHandleChat.cursorPos2 = -1;
                 if (curentHistory == null)
                 {
                     curentHistory = chatHistory.Last;
@@ -247,8 +264,8 @@ namespace ChatExtensions
             }
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
-                HandleChat.cursorPos = 0;
-                HandleChat.cursorPos2 = -1;
+                HarmonyHandleChat.cursorPos = 0;
+                HarmonyHandleChat.cursorPos2 = -1;
                 if (curentHistory == null)
                 {
                     curentHistory = chatHistory.First;

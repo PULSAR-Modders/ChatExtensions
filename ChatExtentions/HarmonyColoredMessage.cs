@@ -3,7 +3,7 @@
 namespace ChatExtensions
 {
     [HarmonyPatch(typeof(PLInGameUI), "ColoredMsg")]
-    class ColoredMessage
+    class HarmonyColoredMessage
     {
         static void Prefix(PLInGameUI __instance, ref string inMsg, bool isShadow, float alpha)
         {

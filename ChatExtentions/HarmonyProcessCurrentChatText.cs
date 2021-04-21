@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace ChatExtensions
 {
     [HarmonyPatch(typeof(PLNetworkManager), "ProcessCurrentChatText")]
-    class ProcessCurrentChatText
+    class HarmonyProcessCurrentChatText
     {
         private static readonly char[] newline = { '\n', '\r'};
         static void Prefix(PLNetworkManager __instance)

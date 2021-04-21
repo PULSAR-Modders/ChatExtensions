@@ -1,21 +1,21 @@
-﻿using PulsarPluginLoader.Chat.Commands;
+﻿using PulsarPluginLoader.Chat.Commands.CommandRouter;
 using PulsarPluginLoader.Utilities;
 
 namespace ChatExtensions
 {
-    class Command : IChatCommand
+    class Command : ChatCommand
     {
-        public string[] CommandAliases()
+        public override string[] CommandAliases()
         {
             return new string[] { "pm", "whisper" };
         }
 
-        public string Description()
+        public override string Description()
         {
             return "Sends a direct message to the specified player";
         }
 
-        public bool Execute(string arguments, int SenderID)
+        public override void Execute(string arguments)
         {
             string arg1 = arguments.Split(' ')[0].ToLower();
             string message = arguments.Substring(arg1.Length);
@@ -70,19 +70,13 @@ namespace ChatExtensions
             {
                 Messaging.Notification("Could not find the specified player");
             }
-            return false;
         }
 
-        public bool PublicCommand()
+        public override string[] UsageExamples()
         {
-            return false;
-        }
-
-        public string UsageExample()
-        {
-            return $"/{CommandAliases()[0]} pilot <message>\n" +
-                $"/{CommandAliases()[0]} w <message>\n" +
-                $"/{CommandAliases()[0]} <name> <message>";
+            return new string[] {$"/{CommandAliases()[0]} pilot <message>",
+                $"/{CommandAliases()[0]} w <message>",
+                $"/{CommandAliases()[0]} <name> <message>" };
         }
     }
 }
