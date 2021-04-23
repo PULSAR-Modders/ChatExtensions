@@ -18,6 +18,9 @@ namespace ChatExtensions
 
         private static bool textModified = false;
 
+        private static long lastTimePaste = long.MaxValue;
+        private static long lastTimeDelete = long.MaxValue;
+
         private static bool commandsCached = false;
         private static string[] aliases = null;
 
@@ -145,6 +148,7 @@ namespace ChatExtensions
                 }
                 if (Input.GetKeyDown(KeyCode.Delete))
                 {
+                    lastTimeDelete = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond + /*(SystemInformation.KeyboardDelay + 1) **/ 250;
                     if (HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                     {
                         DeleteSelected();
@@ -154,6 +158,13 @@ namespace ChatExtensions
                         currentChatText = currentChatText.Remove(currentChatText.Length - HarmonyHandleChat.cursorPos, 1);
                         HarmonyHandleChat.cursorPos--;
                     }
+                    textModified = true;
+                }
+                if (Input.GetKey(KeyCode.Delete) && DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond > lastTimeDelete)
+                {
+                    lastTimeDelete += 30 /*(long)(1 / ((SystemInformation.KeyboardSpeed + 1) * 0.859375))*/;
+                    currentChatText = currentChatText.Remove(currentChatText.Length - HarmonyHandleChat.cursorPos, 1);
+                    HarmonyHandleChat.cursorPos--;
                     textModified = true;
                 }
             }
@@ -194,10 +205,17 @@ namespace ChatExtensions
             {
                 if (Input.GetKeyDown(KeyCode.V))
                 {
+                    lastTimePaste = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond + /*(SystemInformation.KeyboardDelay + 1) **/ 250;
                     if (HarmonyHandleChat.cursorPos2 != -1 && HarmonyHandleChat.cursorPos2 != HarmonyHandleChat.cursorPos)
                     {
                         DeleteSelected();
                     }
+                    currentChatText = currentChatText.Insert(currentChatText.Length - HarmonyHandleChat.cursorPos, GUIUtility.systemCopyBuffer);
+                    textModified = true;
+                }
+                if (Input.GetKey(KeyCode.V) && DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond > lastTimePaste)
+                {
+                    lastTimePaste += 30 /*(long)(1 / ((SystemInformation.KeyboardSpeed + 1) * 0.859375))*/;
                     currentChatText = currentChatText.Insert(currentChatText.Length - HarmonyHandleChat.cursorPos, GUIUtility.systemCopyBuffer);
                     textModified = true;
                 }
